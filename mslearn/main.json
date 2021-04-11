@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.3.255.40792",
-      "templateHash": "5841340928808047133"
+      "templateHash": "5913126053675161994"
     }
   },
   "parameters": {
@@ -20,11 +20,21 @@
     "appServiceAppName": {
       "type": "string",
       "defaultValue": "[format('toylaunch{0}', uniqueString(resourceGroup().id))]"
+    },
+    "environmentType": {
+      "type": "string",
+      "allowedValues": [
+        "nonprod",
+        "prod"
+      ]
     }
   },
   "functions": [],
   "variables": {
-    "appServicePlanName": "toy-product-launch-plan"
+    "appServicePlanName": "toy-product-launch-plan",
+    "storageAccountSkuName": "[if(equals(parameters('environmentType'), 'prod'), 'Standard_GRS', 'Standard_LRS')]",
+    "appServicePlanSkuName": "[if(equals(parameters('environmentType'), 'prod'), 'P2_v3', 'F1')]",
+    "appServicePlanTierName": "[if(equals(parameters('environmentType'), 'prod'), 'PremiumV3', 'Free')]"
   },
   "resources": [
     {
@@ -33,7 +43,7 @@
       "name": "[parameters('storageAccountName')]",
       "location": "[parameters('location')]",
       "sku": {
-        "name": "Standard_LRS"
+        "name": "[variables('storageAccountSkuName')]"
       },
       "kind": "StorageV2",
       "properties": {
@@ -46,8 +56,8 @@
       "name": "[variables('appServicePlanName')]",
       "location": "[parameters('location')]",
       "sku": {
-        "name": "F1",
-        "tier": "Free"
+        "name": "[variables('appServicePlanSkuName')]",
+        "tier": "[variables('appServicePlanTierName')]"
       }
     },
     {
